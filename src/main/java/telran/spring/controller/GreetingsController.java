@@ -10,6 +10,7 @@ import telran.spring.service.GreetingService;
 @RequiredArgsConstructor
 public class GreetingsController {
 	final GreetingService greetingsService;
+	
 	@GetMapping("{id}")
 	String getGreetings(@PathVariable long id) {
 		return greetingsService.getGreetings(id);

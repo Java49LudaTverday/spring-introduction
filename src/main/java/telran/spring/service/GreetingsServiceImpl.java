@@ -2,22 +2,21 @@ package telran.spring.service;
 
 import java.util.*;
 import org.springframework.stereotype.Service;
+
+import telran.exceptions.NotFoundException;
 import telran.spring.Person;
 
 @Service
 public class GreetingsServiceImpl implements GreetingService {
-	Map<Long, String> greetingsMap = new HashMap<>();
 	Map<Long, Person> persons = new HashMap<>();
-	Map<String, List<Person>> personsByCity = new HashMap<>();
 	
 	@Override
 	public String getGreetings(long id) {
-
-		String name = greetingsMap.getOrDefault(id, "Unknown Guest");
+		Person person = persons.get(id);
+		String name = person.name();
 		return "Hello " + name;
 	}
 
-	// HW#57
 	@Override
 	public Person getPerson(long id) {
 
@@ -26,65 +25,37 @@ public class GreetingsServiceImpl implements GreetingService {
 	
 	@Override
 	public Person addPerson(Person person) {
-		Person result = null;
-		if (persons.putIfAbsent(person.id(), person) == null) {
-			addPersonByCity(person);
-			addToGreetingsMap(person);
-			result = person;
+		Long id = person.id();
+		if(persons.containsKey(id)) {
+			throw new IllegalStateException(String.format("person with id %d already exists", id));
 		}
-		return result;
-	}
-
-	private void addToGreetingsMap(Person person) {
-		greetingsMap.put(person.id(), person.name());
-		
-	}
-
-	private void addPersonByCity(Person person) {
-		List<Person> persons = personsByCity.get(person.city());
-		if (persons == null) {
-			persons = new ArrayList<>();
-		}
-		persons.add(person);
-		personsByCity.put(person.city(), persons);
+	persons.put(id, person);
+		return person;
 	}
 
 	@Override
 	public List<Person> getPersonsByCity(String city) {
 
-		return personsByCity.get(city);
+		return persons.values().stream().filter(p -> p.city().equals(city)).toList();
 	}
 
 	@Override
 	public Person deletePerson(long id) {
-		Person person = persons.remove(id);
-		removeFromPersonsCity(person);
-		removeFromGreetingsMap(person);
-		return person;
-	}
-
-	private void removeFromGreetingsMap(Person person) {
-		greetingsMap.remove(person.id());
-		
-	}
-
-	private void removeFromPersonsCity(Person person) {
-		List<Person> persons = personsByCity.get(person.city());
-		if (persons != null) {
-			persons.remove(person);
+		if(!persons.containsKey(id)) {
+			throw new NotFoundException(String.format("person with id %d doesn't exist", id));
 		}
+		
+		return persons.remove(id);
 	}
 
 	@Override
 	public Person updatePerson(Person newPerson) {
-		Person beforeUpdate = persons.put(newPerson.id(), newPerson);
-		removeFromPersonsCity(beforeUpdate);
-		addPersonByCity(newPerson);
-		if(!newPerson.name().equals(beforeUpdate.name())) {
-			removeFromGreetingsMap(beforeUpdate);
-			addToGreetingsMap(newPerson);
+		long id = newPerson.id();
+		if(!persons.containsKey(id)) {
+			throw new NotFoundException(String.format("person with id %d doesn't exist", id));
 		}
-		return beforeUpdate;
+		persons.put(newPerson.id(), newPerson);
+		return newPerson;
 	}
 	
 	

@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "app.greeting.message",
+    "type": "java.lang.String",
+    "description": "Greeting message, like Hello. Hi, ...'"
+  },
+  {
+    "name": "app.unknown.name",
+    "type": "java.lang.String",
+    "description": "name of non-existen person'"
+  },
+  {
+    "name": "app.file.name",
+    "type": "java.lang.String",
+    "description": "name of file with of person`s name"
+  }
+]}

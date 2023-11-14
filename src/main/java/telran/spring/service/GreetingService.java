@@ -13,6 +13,8 @@ public interface GreetingService {
 	List<Person> getPersonsByCity(String city);
 	Person deletePerson(long id);
 	Person updatePerson(Person person);
+	void save(String fileName);
+	void restore(String fileName);
 	
 	
 }

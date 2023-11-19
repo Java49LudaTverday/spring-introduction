@@ -111,34 +111,29 @@ public class GreetingsServiceImpl implements GreetingService {
 	@Override
 	public void save(String fileName) {
 		// saving persons data into ObjectOutputStream
-		try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileName))){
-			List<Person> personsForSave = new ArrayList<Person>(persons.values());
-			log.trace(String.format("Persons data for saving $s", personsForSave));
-			output.writeObject(personsForSave);
-			log.info("Persons data have been saved");
-		} catch (FileNotFoundException e) {
-			throw new  NotFoundException(String.format("Fail %s is not exist", fileName));
-		} catch (IOException e) {
-			throw new RuntimeException("Can`t be saved");
-		} 
+		try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileName))) {
+			output.writeObject(new ArrayList<Person>(persons.values()));
+			log.info("persons data have been saved");
+		} catch (Exception e) {
+			log.error("{}", e);
+		}
 		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void restore(String fileName) {
 		// restoring from file using ObjectInputStream
-		if(Files.exists(Path.of(fileName))){
-		try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(fileName))){
-			List<Person> personsList = (ArrayList<Person>) input.readObject();
-			log.trace(String.format("Person data for restore $s", personsList));
-			personsList.stream().forEach(this::addPerson);
-			log.info("Restored from file");
+		try(ObjectInputStream input =
+				new ObjectInputStream(new FileInputStream(fileName))) {
+			List<Person> employeesList = (List<Person>) input.readObject();
+			employeesList.forEach(this::addPerson);
+			log.info("restored from file");
 		} catch (FileNotFoundException e) {
-			throw new  NotFoundException(String.format("Fail %s is not exist", fileName));
+			log.warn("No file with data found");
 		} catch (Exception e) {
-			throw new RuntimeException("Can`t be restore");
-		}		
-	}
+			log.error("{}", e);
+		}	
 	}
 }
 

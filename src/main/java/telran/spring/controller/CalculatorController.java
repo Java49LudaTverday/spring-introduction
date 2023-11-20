@@ -1,36 +1,43 @@
 package telran.spring.controller;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import telran.spring.service.Calculator;
+import lombok.extern.slf4j.Slf4j;
+import telran.exceptions.NotFoundException;
+import telran.spring.dto.OperationData;
+import telran.spring.service.CalculatorService;
 
 @RestController
 @RequestMapping("calculator")
 @RequiredArgsConstructor
+@Slf4j
 public class CalculatorController {
-	final Calculator calculator;
-	
-	@GetMapping("multiply/{op1}/{op2}")
-	double getMultiplyValue (@PathVariable double op1, @PathVariable double op2 ) {
-		return calculator.multiply(op1, op2);
+	final List<CalculatorService> calculatorService;
+	Map<String, CalculatorService> servicesMap;
+	@PostConstruct
+	void createServicesMap() {
+		servicesMap = calculatorService.stream().collect(Collectors
+				.toMap(service -> service.getCalculationType() ,service -> service)) ;
+		log.trace("servicesMap was created {}", servicesMap);
+
 	}
 	
-	@GetMapping("divide/{op1}/{op2}")
-	double getDivideValue (@PathVariable double op1, @PathVariable double op2 ) {
-		return calculator.divide(op1, op2);
+	@PostMapping
+	String calculate(@RequestBody @Valid OperationData operationData) {
+		String type = operationData.type();
+		CalculatorService  calculatorService = servicesMap.get(type);
+		if(calculatorService == null) {
+			throw new NotFoundException(String.format("type %s not found", type));
+		}
+		return calculatorService.calculate(operationData);
 	}
 	
-	@GetMapping("sum/{op1}/{op2}")
-	double getSumValue (@PathVariable double op1, @PathVariable double op2 ) {
-		return calculator.sum(op1, op2);
-	}
-	
-	@GetMapping("subtract/{op1}/{op2}")
-	double getSubtractValue (@PathVariable double op1, @PathVariable double op2 ) {
-		return calculator.subtract(op1, op2);
-	}
 }

@@ -26,14 +26,19 @@ public class CalculatorController {
 	void createServicesMap() {
 		servicesMap = calculatorService.stream().collect(Collectors
 				.toMap(service -> service.getCalculationType() ,service -> service)) ;
-		log.trace("servicesMap was created {}", servicesMap);
-
+		if(servicesMap.isEmpty()) {
+			log.warn("servicesMap is empty");
+		} else {
+		log.trace("method: createServiceMap, servicesMap was created {}", servicesMap);
+		}
 	}
 	
 	@PostMapping
 	String calculate(@RequestBody @Valid OperationData operationData) {
+		log.debug("method: calculate, operationData: {},  was recieved", operationData);
 		String type = operationData.type();
 		CalculatorService  calculatorService = servicesMap.get(type);
+		log.debug("method: calculate, calculatorService: {} has been received  ", calculatorService);
 		if(calculatorService == null) {
 			throw new NotFoundException(String.format("type %s not found", type));
 		}

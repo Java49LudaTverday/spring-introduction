@@ -1,6 +1,6 @@
 package telran.spring.service;
 
-import java.time.Instant;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeParseException;
@@ -71,6 +71,7 @@ public class DateCalculatorService implements CalculatorService {
 		int days = Math.abs(period.getDays());
 		int months = Math.abs(period.getMonths());
 		int years = Math.abs(period.getYears());
+		log.debug("receivde days {}, months {}, years {}", days, months, years);
 		return String.format("%d years, %d months, %d days", years, months,days);
 	}
 
@@ -90,7 +91,7 @@ public class DateCalculatorService implements CalculatorService {
 		try {
 			return LocalDate.parse(operand);
 		} catch (DateTimeParseException e) {
-			 throw new IllegalStateException("operand must be a date in format YYYY-MM-DD");
+			 throw new IllegalArgumentException("operand must be a date in format YYYY-MM-DD");
 		}		
 	}
 

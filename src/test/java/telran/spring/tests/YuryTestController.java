@@ -61,6 +61,7 @@ class CalculatorControllerTest {
 	
 	@Test
 	void mapCreationTest() {
+		
 		CalculatorService service = controller.getServicesMap().get("test");
 		assertEquals("test", service.getCalculationType());
 		

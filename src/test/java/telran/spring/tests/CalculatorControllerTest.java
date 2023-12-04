@@ -47,7 +47,12 @@ public class CalculatorControllerTest {
 		assertNotNull(mockMvc);
 		assertNotNull(objectMapper);
 		assertNotNull(calculatorService);
-
+	}
+	
+	@Test
+	void calculatorsMapTest() {
+		CalculatorService arithmetic = calculatorController.getServicesMap().get("arithmetic");
+		assertEquals("arithmetic", arithmetic.getCalculationType());
 	}
 
 	@Test
